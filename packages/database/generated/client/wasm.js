@@ -124,6 +124,33 @@ exports.Prisma.UserScalarFieldEnum = {
   name: 'name'
 };
 
+exports.Prisma.EventScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  name: 'name',
+  description: 'description',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  location: 'location',
+  imageUrl: 'imageUrl',
+  userId: 'userId',
+  courtId: 'courtId'
+};
+
+exports.Prisma.PlayerScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  headshotUrl: 'headshotUrl'
+};
+
+exports.Prisma.CourtScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  name: 'name'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -141,7 +168,10 @@ exports.Prisma.NullsOrder = {
 
 
 exports.Prisma.ModelName = {
-  User: 'User'
+  User: 'User',
+  Event: 'Event',
+  Player: 'Player',
+  Court: 'Court'
 };
 
 /**

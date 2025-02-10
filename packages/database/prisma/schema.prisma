@@ -13,4 +13,37 @@ model User {
   createdAt DateTime @default(now())
   email     String   @unique
   name      String?
+  events    Event[]
+}
+
+model Event {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  name      String
+  description String?
+  startDate DateTime
+  endDate DateTime
+  location String?
+  imageUrl String?
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  courtId Int
+  court Court @relation(fields: [courtId], references: [id])
+  players Player[]
+}
+
+model Player {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  firstName      String
+  lastName      String
+  headshotUrl String?
+  events    Event[]
+}
+
+model Court {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  name      String
+  events    Event[]
 }
