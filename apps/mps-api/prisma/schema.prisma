@@ -1,0 +1,130 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      UserRole @default(SCORER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tournaments Tournament[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  ORGANIZER
+  SCORER
+}
+
+model Player {
+  id        String   @id @default(uuid())
+  name      String
+  ranking   Int?
+  country   String?
+  stats     Json     @default("{\"matchesPlayed\":0,\"matchesWon\":0,\"matchesLost\":0,\"setsWon\":0,\"setsLost\":0,\"gamesWon\":0,\"gamesLost\":0}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  matchesAsPlayer1 Match[] @relation("Player1Matches")
+  matchesAsPlayer2 Match[] @relation("Player2Matches")
+  wonMatches       Match[] @relation("WinnerMatches")
+
+  @@map("players")
+}
+
+model Tournament {
+  id        String           @id @default(uuid())
+  name      String
+  location  String
+  startDate DateTime
+  endDate   DateTime
+  format    TournamentFormat
+  status    TournamentStatus @default(UPCOMING)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  userId    String?
+
+  user    User?   @relation(fields: [userId], references: [id])
+  matches Match[]
+
+  @@map("tournaments")
+}
+
+enum TournamentFormat {
+  SINGLE_ELIMINATION
+  DOUBLE_ELIMINATION
+  ROUND_ROBIN
+  SWISS
+}
+
+enum TournamentStatus {
+  UPCOMING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model Match {
+  id           String      @id @default(uuid())
+  tournamentId String
+  player1Id    String
+  player2Id    String
+  status       MatchStatus @default(SCHEDULED)
+  scheduledAt  DateTime?
+  startedAt    DateTime?
+  completedAt  DateTime?
+  winnerId     String?
+  bestOf       Int         @default(3)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  tournament  Tournament   @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  player1     Player       @relation("Player1Matches", fields: [player1Id], references: [id])
+  player2     Player       @relation("Player2Matches", fields: [player2Id], references: [id])
+  winner      Player?      @relation("WinnerMatches", fields: [winnerId], references: [id])
+  matchScore  MatchScore?
+
+  @@map("matches")
+}
+
+enum MatchStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model MatchScore {
+  id             String   @id @default(uuid())
+  matchId        String   @unique
+  currentSet     Int      @default(1)
+  sets           Json     @default("[]")
+  games          Json     @default("[0,0]")
+  points         Json     @default("[0,0]")
+  server         Int      @default(1)
+  winnerId       String?
+  inTiebreak     Boolean  @default(false)
+  tiebreakPoints Json?
+  history        Json     @default("[]")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@map("match_scores")
+}
+
